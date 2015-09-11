@@ -1,0 +1,59 @@
+<!doctype html>
+<html ng-app="myApp" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test</title>
+  <script src="js/angular.js"></script>
+  <script src="js/angular-resource.js"></script>
+  <script src="js/lb-services.js"></script>
+  <script>
+
+    angular.module('myApp', ['lbServices']);
+
+    function MyController($scope, Customer, Order) {
+      console.log('working');
+
+      $scope.title = 'Welcome';
+      $scope.orders = [];
+
+      $scope.customer = Customer.findOne({filter: {where: {name: 'simon'}}}, function (data) {
+        console.log('done');
+        $scope.orders = Customer.orders({id: $scope.customer.id});
+      });
+
+
+      $scope.addOrder = function () {
+        console.log('add order');
+        $scope.newOrder = Customer.orders.create({id: $scope.customer.id}, {description: 'new order', price: 9.99});
+        $scope.newOrder.$save();
+      };
+
+      $scope.connectOrder = function () {
+        console.log('connect order');
+        var mountainBikeId = '55f2127167e703cf4c917fd9';
+        Customer.orders.create({id: mountainBikeId, fk: $scope.customer.id}, null, function (data) {
+          console.log(data);
+        });
+      };
+
+      $scope.deleteOrder = function () {
+        console.log('delete order');
+        Customer.orders.destroyAll({id: $scope.customer.id});
+      };
+    }
+
+  </script>
+</head>
+<body>
+<div ng-controller="MyController">
+  <h1>{{title}}</h1>
+
+  <p>{{customer}}</p>
+
+  <p>{{orders}}</p>
+  <button ng-click="addOrder()">Add Order</button>
+  <button ng-click="connectOrder()">Connect Order</button>
+  <button ng-click="deleteOrder()">Delete Order</button>
+</div>
+</body>
+</html>
