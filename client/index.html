@@ -8,6 +8,8 @@
   <script src="js/lb-services.js"></script>
   <script>
 
+    var mountainBikeId = '55f261795ebf2af626449a09';
+
     angular.module('myApp', ['lbServices']);
 
     function MyController($scope, Customer, Order) {
@@ -21,6 +23,8 @@
         $scope.orders = Customer.orders({id: $scope.customer.id});
       });
 
+      $scope.inventory = Order.find({});
+
 
       $scope.addOrder = function () {
         console.log('add order');
@@ -30,15 +34,30 @@
 
       $scope.connectOrder = function () {
         console.log('connect order');
-        var mountainBikeId = '55f2127167e703cf4c917fd9';
-        Customer.orders.create({id: mountainBikeId, fk: $scope.customer.id}, null, function (data) {
-          console.log(data);
+//        Customer.orders.link({id: $scope.customer.id, fk:mountainBikeId}, null,
+//        function(r){
+//          console.log(r);
+//        },
+//        function(e){
+//          console.log(e);
+//        });
+        Order.findById({id: mountainBikeId}, function (order) {
+          order.customerId = $scope.customer.id;
+          order.$save(function (data) {
+            console.log(data);
+          });
         });
       };
 
       $scope.deleteOrder = function () {
         console.log('delete order');
-        Customer.orders.destroyAll({id: $scope.customer.id});
+        //Customer.orders.unlink({id: $scope.customer.id});
+        Order.findById({id: mountainBikeId}, function (order) {
+          order.customerId = null;
+          order.$save(function (data) {
+            console.log(data);
+          });
+        });
       };
     }
 
@@ -51,6 +70,8 @@
   <p>{{customer}}</p>
 
   <p>{{orders}}</p>
+  <br>
+  <p>{{inventory}}</p>
   <button ng-click="addOrder()">Add Order</button>
   <button ng-click="connectOrder()">Connect Order</button>
   <button ng-click="deleteOrder()">Delete Order</button>
